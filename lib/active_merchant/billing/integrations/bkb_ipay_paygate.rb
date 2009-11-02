@@ -38,6 +38,9 @@ require File.dirname(__FILE__) + '/bkb_ipay_paygate/notification.rb'
 #     else
 #       #log bad call
 #     end
+#
+#     render :text => "OK", :layout => false and return
+#
 #   end
 
 #
