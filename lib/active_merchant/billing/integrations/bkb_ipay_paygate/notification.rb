@@ -5,93 +5,101 @@ module ActiveMerchant #:nodoc:
     module Integrations #:nodoc:
       module BkbIpayPaygate
         class Notification < ActiveMerchant::Billing::Integrations::Notification
+          
+          # to be confirmed - these are the numbers I have observed
+          # self.production_ips = [ '119.46.71.125', '210.4.158.125' ]
+          
+          SUCCESS = '0'
+          
           def complete?
-            params['']
-          end 
-
-          def item_id
-            params['']
+            status == 'Completed'
           end
 
           def transaction_id
-            params['']
+            params['Ord']
+          end
+          
+          def item_id
+            params['Ref']
           end
 
           # When was this payment received by the client. 
           def received_at
-            params['']
-          end
-
-          def payer_email
-            params['']
-          end
-         
-          def receiver_email
-            params['']
-          end 
-
-          def security_key
-            params['']
+            nil
           end
 
           # the money amount we received in X.2 decimal.
           def gross
-            params['']
+            params['Amt']
           end
-
-          # Was this a test transaction?
+          
+          # Return bank host status code (secondary)
+          def src
+            params['src']
+          end
+          
+          # Return bank host status code (primary)
+          def prc
+            params['prc']
+          end
+          
+          # The Name of the holder of the Payment Account
+          def holder
+            params['Holder']
+          end
+          
+          # iPay Payment Reference Number
+          def pay_ref
+            params['PayRef']
+          end
+          
+          # ECI value (for 3D enabled Merchants) - Documentation omitted
+          def eci
+            params['eci']
+          end
+          
+          # Payer Authentication Status
+          # Y - Card is 3D-secure enrolled and authentication succeeds.
+          # N - Card is 3D-secure enrolled but authentication fails.
+          # P - 3D Secure check is pending
+          # A - Card is not 3D-secure enrolled yet
+          # U - 3D-secure check has not been processed.
+          def payer_auth
+            params['payerAuth']
+          end
+          
+          def source_ip
+            params['sourceIp']
+          end
+          
+          def ip_country
+            params['ipCountry']
+          end
+          
+          def cc_last_four
+            params['cc1316']
+          end
+          
+          def cc_first_four
+            params['cc0104']
+          end
+          
+          CURRENCY_CODES = {'840' => 'USD', '764' => 'THB'}
+          def currency
+            CURRENCY_CODES[params['Cur']] rescue 'THB'
+          end
+          
           def test?
-            params[''] == 'test'
+            false
           end
 
           def status
-            params['']
+            params['successcode'] == SUCCESS ? 'Completed' : 'Failed'
           end
-
-          # Acknowledge the transaction to BkbIpayPaygate. This method has to be called after a new 
-          # apc arrives. BkbIpayPaygate will verify that all the information we received are correct and will return a 
-          # ok or a fail. 
-          # 
-          # Example:
-          # 
-          #   def ipn
-          #     notify = BkbIpayPaygateNotification.new(request.raw_post)
-          #
-          #     if notify.acknowledge 
-          #       ... process order ... if notify.complete?
-          #     else
-          #       ... log possible hacking attempt ...
-          #     end
+          
+          
           def acknowledge      
-            payload = raw
-
-            uri = URI.parse(BkbIpayPaygate.notification_confirmation_url)
-
-            request = Net::HTTP::Post.new(uri.path)
-
-            request['Content-Length'] = "#{payload.size}"
-            request['User-Agent'] = "Active Merchant -- http://home.leetsoft.com/am"
-            request['Content-Type'] = "application/x-www-form-urlencoded" 
-
-            http = Net::HTTP.new(uri.host, uri.port)
-            http.verify_mode    = OpenSSL::SSL::VERIFY_NONE unless @ssl_strict
-            http.use_ssl        = true
-
-            response = http.request(request, payload)
-
-            # Replace with the appropriate codes
-            raise StandardError.new("Faulty BkbIpayPaygate result: #{response.body}") unless ["AUTHORISED", "DECLINED"].include?(response.body)
-            response.body == "AUTHORISED"
-          end
- private
-
-          # Take the posted data and move the relevant data into a hash
-          def parse(post)
-            @raw = post
-            for line in post.split('&')
-              key, value = *line.scan( %r{^(\w+)\=(.*)$} ).flatten
-              params[key] = value
-            end
+            true
           end
         end
       end
