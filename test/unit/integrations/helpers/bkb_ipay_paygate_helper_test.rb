@@ -4,41 +4,16 @@ class BkbIpayPaygateHelperTest < Test::Unit::TestCase
   include ActiveMerchant::Billing::Integrations
   
   def setup
-    @helper = BkbIpayPaygate::Helper.new('order-500','cody@example.com', :amount => 500, :currency => 'USD')
+    @helper = BkbIpayPaygate::Helper.new('order-500','merchant_id', :amount => 500, :currency => 'USD')
   end
  
   def test_basic_helper_fields
-    assert_field '', 'cody@example.com'
-
-    assert_field '', '5.00'
-    assert_field '', 'order-500'
+    assert_field 'amount', '500'
+    assert_field 'currCode', '840'
+    assert_field 'orderRef', 'order-500'
+    assert_field 'merchantId', 'merchant_id'
   end
   
-  def test_customer_fields
-    @helper.customer :first_name => 'Cody', :last_name => 'Fauser', :email => 'cody@example.com'
-    assert_field '', 'Cody'
-    assert_field '', 'Fauser'
-    assert_field '', 'cody@example.com'
-  end
-
-  def test_address_mapping
-    @helper.billing_address :address1 => '1 My Street',
-                            :address2 => '',
-                            :city => 'Leeds',
-                            :state => 'Yorkshire',
-                            :zip => 'LS2 7EE',
-                            :country  => 'CA'
-   
-    assert_field '', '1 My Street'
-    assert_field '', 'Leeds'
-    assert_field '', 'Yorkshire'
-    assert_field '', 'LS2 7EE'
-  end
-  
-  def test_unknown_address_mapping
-    @helper.billing_address :farm => 'CA'
-    assert_equal 3, @helper.fields.size
-  end
 
   def test_unknown_mapping
     assert_nothing_raised do
