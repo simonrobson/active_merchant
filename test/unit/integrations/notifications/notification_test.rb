@@ -1,4 +1,4 @@
-wrequire 'test_helper'
+require 'test_helper'
 
 class NotificationTest < Test::Unit::TestCase
   include ActiveMerchant::Billing::Integrations
