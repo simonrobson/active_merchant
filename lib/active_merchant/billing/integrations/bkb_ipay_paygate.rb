@@ -19,17 +19,12 @@ require File.dirname(__FILE__) + '/bkb_ipay_paygate/notification.rb'
 #     
 #     <% end %>
 #
-# Unconfirmed: response should come from: 119.46.71.125, 210.4.158.125
 #
 # The the datafeed URL can be configured something like this (in a rails context)
 #
-# 
-#
-#
-
 #   def data_feed 
 #     notification = BkbIpayPaygate.notification(post)
-#     if notification.valid_sender?(request) # always returns true until IP addresses are confirmed
+#     if notification.valid_sender?(request.remote_ip)
 #       if notification.complete?
 #         #record successful transaction for notification.item_id
 #       else

@@ -6,8 +6,8 @@ module ActiveMerchant #:nodoc:
       module BkbIpayPaygate
         class Notification < ActiveMerchant::Billing::Integrations::Notification
           
-          # to be confirmed - these are the numbers I have observed
-          # self.production_ips = [ '119.46.71.125', '210.4.158.125' ]
+          # Changed and confirmed 27-01-2010 in email from Bangkok Bank
+          self.production_ips = [ '119.46.71.125', '110.164.207.125' ]
           
           SUCCESS = '0'
           
